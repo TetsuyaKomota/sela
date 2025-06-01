@@ -1,4 +1,7 @@
+from typing import Callable
+
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI
 
 from sela.data.schemas import BaseChatModel, Message, Messages
@@ -7,9 +10,15 @@ from sela.utils.prompt_manager import get_prompt
 
 
 class CasualTalker:
-    def __init__(self, llm: BaseChatModel, hisoty_len: int = 10):
+    def __init__(
+        self,
+        llm: BaseChatModel,
+        long_term_memory: Callable[[str], str],
+        hisoty_len: int = 10,
+    ):
         config = {"temperature": 0.7}
         self.llm = llm.with_config(configurable=config) | StrOutputParser()
+        self.long_term_memory = long_term_memory
         self.hisoty_len = hisoty_len
 
     def format_message_history(self, messages: list[str]) -> str:
@@ -19,7 +28,16 @@ class CasualTalker:
     def run(self, user_message: Message, messages: Messages) -> Messages:
         prompt = get_prompt("casual_talker")
 
-        chain = prompt | self.llm
+        chain = (
+            {
+                "long_term_memory": self.long_term_memory,
+                "message_history": RunnablePassthrough(),
+                "user_message": RunnablePassthrough(),
+                "assistant_dt": RunnablePassthrough(),
+            }
+            | prompt
+            | self.llm
+        )
 
         params = {
             "message_history": self.format_message_history(messages.messages),

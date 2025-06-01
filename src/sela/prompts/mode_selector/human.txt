@@ -1,4 +1,6 @@
 ユーザの入力を分析し，適切な実行モードを選択してください
 
+{long_term_memory}
+
 ユーザの入力: 
 {user_message}
