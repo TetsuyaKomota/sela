@@ -1,6 +1,5 @@
 ユーザの問いかけに対し，雑談相手であるあなた個人として返答してください
 
-ユーザの入力: {user_message}
-
-直近の会話履歴:
 {message_history}
+human: {user_message}
+assistant: 
