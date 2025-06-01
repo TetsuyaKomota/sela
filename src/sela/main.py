@@ -9,4 +9,6 @@ if __name__ == "__main__":
 
     response = agent.run("こんにちは．")
 
-    print(response)
+    print(response.messages[-1].text)
+    print(agent.state)
+    print(agent.state.messages)

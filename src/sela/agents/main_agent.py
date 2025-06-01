@@ -3,13 +3,15 @@ from typing import Any
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
 
-from sela.data.schemas import BaseChatModel, Mode, SeLaState
+from sela.data.schemas import BaseChatModel, Message, Mode, SeLaState
 from sela.nodes.casual_talker import CasualTalker
 from sela.nodes.mode_selector import ModeSelector
 
 
 class MainAgent:
-    def __init__(self, llm: BaseChatModel | None = None):
+    def __init__(
+        self, llm: BaseChatModel | None = None, state: SeLaState | None = None
+    ):
         if llm:
             self.llm = llm
         else:
@@ -17,6 +19,11 @@ class MainAgent:
 
         self.mode_selector = ModeSelector(self.llm)
         self.casual_talker = CasualTalker(self.llm)
+
+        if state:
+            self.state = state
+        else:
+            self.state = SeLaState(user_message="")
 
         self.graph = self.create_graph()
 
@@ -43,11 +50,13 @@ class MainAgent:
         return {"mode": new_mode.mode}
 
     def talk_casual(self, state: SeLaState) -> dict[str, Any]:
-        response: str = self.casual_talker.run(state.user_message)
-        return {"messages": [response]}
+        response: list[Message] = self.casual_talker.run(
+            state.user_message, state.messages
+        )
+        return {"messages": response}
 
     def run(self, user_message: str) -> str:
-        initial_state = SeLaState(user_message=user_message)
-        result = self.graph.invoke(initial_state)
-        result_state = SeLaState(**result)
-        return result_state.messages[-1]
+        self.state.user_message = user_message
+        result = self.graph.invoke(self.state)
+        self.state = SeLaState(**result)
+        return self.state
