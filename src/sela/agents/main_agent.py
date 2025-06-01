@@ -8,6 +8,7 @@ from langgraph.graph import END, StateGraph
 from sela.data.schemas import BaseChatModel, Message, Mode, SeLaState
 from sela.nodes.casual_talker import CasualTalker
 from sela.nodes.mode_selector import ModeSelector
+from sela.utils.datetime_manager import get_dt
 
 
 class MainAgent:
@@ -28,7 +29,8 @@ class MainAgent:
         if state:
             self.state = state
         else:
-            self.state = SeLaState(user_message="")
+            new_message = Message(text="", role="human")
+            self.state = SeLaState(user_message=new_message)
 
         # 自分しか使わないので一旦固定値
         self.checkpoint_conf = {"configurable": {"thread_id": "thread-1"}}
@@ -68,7 +70,8 @@ class MainAgent:
         return {"messages": response}
 
     def run(self, user_message: str) -> str:
-        self.state.user_message = user_message
+        new_message = Message(text=user_message, role="human")
+        self.state.user_message = new_message
         result = self.graph.invoke(self.state, self.checkpoint_conf)
         self.state = SeLaState(**result)
         return self.state
