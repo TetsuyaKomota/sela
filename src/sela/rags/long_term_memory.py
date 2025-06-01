@@ -18,14 +18,14 @@ class LongTermMemory:
     @staticmethod
     def get_retriever(
         dir_path: str = "tmp/long_term_memory",
-    ) -> Callable[dict[str, Any], str]:
+    ) -> Callable[[str], str]:
         if not LongTermMemory.retriever:
             if not exists(dir_path):
                 LongTermMemory._create_initial_knowledge(dir_path)
             LongTermMemory._build_vectorstore(dir_path)
 
-        def _f(params: dict[str, Any]) -> str:
-            documents = LongTermMemory.retriever.invoke(params["user_message"].text)
+        def _f(prompt: str) -> str:
+            documents = LongTermMemory.retriever.invoke(prompt)
             contents = "\n".join([f"- {d.page_content}" for d in documents])
             output = dedent(
                 f"""
@@ -52,10 +52,10 @@ class LongTermMemory:
                 doc_list.append(f.read().strip())
 
         embeddings = OpenAIEmbeddings()
-        LongTermMemory.vs = FAISS.from_texts(doc_list, embeddings)
-        LongTermMemory.retriever = LongTermMemory.vs.as_retriever(
-            search_kwargs={"k": 3}
-        )
+        vs = FAISS.from_texts(doc_list, embeddings)
+        retriever = vs.as_retriever(search_kwargs={"k": 3})
+        LongTermMemory.vs = vs
+        LongTermMemory.retriever = retriever
 
     @staticmethod
     def add(text: str, dir_path: str = "tmp/long_term_memory"):

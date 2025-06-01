@@ -28,18 +28,10 @@ class CasualTalker:
     def run(self, user_message: Message, messages: Messages) -> Messages:
         prompt = get_prompt("casual_talker")
 
-        chain = (
-            {
-                "long_term_memory": self.long_term_memory,
-                "message_history": RunnablePassthrough(),
-                "user_message": RunnablePassthrough(),
-                "assistant_dt": RunnablePassthrough(),
-            }
-            | prompt
-            | self.llm
-        )
+        chain = prompt | self.llm
 
         params = {
+            "long_term_memory": self.long_term_memory(user_message.text),
             "message_history": self.format_message_history(messages.messages),
             "user_message": user_message,
             "assistant_dt": get_dt(),
