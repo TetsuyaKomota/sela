@@ -1,7 +1,8 @@
-from data.schemas import BaseChatModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
-from utils.prompt_manager import get_prompt
+
+from sela.data.schemas import BaseChatModel
+from sela.utils.prompt_manager import get_prompt
 
 
 class CasualTalker:
