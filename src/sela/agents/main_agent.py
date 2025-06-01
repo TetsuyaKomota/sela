@@ -1,6 +1,7 @@
 import sqlite3
 from typing import Any
 
+from langchain_core.runnables import ConfigurableField
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
@@ -22,6 +23,9 @@ class MainAgent:
             self.llm = llm
         else:
             self.llm = ChatOpenAI(model="gpt-4.1", temperature=0)
+        self.llm = self.llm.configurable_fields(
+            temperature=ConfigurableField(id="temperature")
+        )
 
         self.mode_selector = ModeSelector(self.llm)
         self.casual_talker = CasualTalker(self.llm)
