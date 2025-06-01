@@ -26,13 +26,18 @@ class ExecutionMode(BaseModel):
     )
 
 
+class Message(BaseModel):
+    role: str = Field(..., description="発話者")
+    text: str = Field(..., description="発話内容")
+
+
 class SeLaState(BaseModel):
     user_message: str = Field(..., description="ユーザからのクエリ")
     execution_mode: Mode = Field(
         default=Mode.TALK_CASUAL,
         description="ユーザのクエリに対するエージェントの応答モード",
     )
-    messages: Annotated[list[str], operator.add] = Field(
+    messages: Annotated[list[Message], operator.add] = Field(
         default_factory=list, description="会話履歴"
     )
 
