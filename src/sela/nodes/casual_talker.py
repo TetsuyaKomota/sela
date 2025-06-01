@@ -7,8 +7,9 @@ from sela.utils.prompt_manager import get_prompt
 
 
 class CasualTalker:
-    def __init__(self, llm: BaseChatModel, hisoty_len: int = 5):
-        self.llm = llm | StrOutputParser()
+    def __init__(self, llm: BaseChatModel, hisoty_len: int = 10):
+        config = {"temperature": 0.7}
+        self.llm = llm.with_config(configurable=config) | StrOutputParser()
         self.hisoty_len = hisoty_len
 
     def format_message_history(self, messages: list[str]) -> str:

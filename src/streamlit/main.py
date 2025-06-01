@@ -24,7 +24,7 @@ def login_greed(agent):
         now = datetime.now()
         if 7 <= now.hour < 10:
             prompt = "おはようございます"
-        elif now.hour < 18:
+        elif 10 <= now.hour < 18:
             prompt = "こんにちは"
         else:
             prompt = "こんばんは"
