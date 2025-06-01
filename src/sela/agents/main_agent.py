@@ -1,10 +1,11 @@
 from typing import Any
 
-from data.schemas import BaseChatModel, Mode, SeLaState
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
-from nodes.casual_talker import CasualTalker
-from nodes.mode_selector import ModeSelector
+
+from sela.data.schemas import BaseChatModel, Mode, SeLaState
+from sela.nodes.casual_talker import CasualTalker
+from sela.nodes.mode_selector import ModeSelector
 
 
 class MainAgent:

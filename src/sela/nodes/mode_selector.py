@@ -1,6 +1,7 @@
-from data.schemas import BaseChatModel, ExecutionMode
 from langchain_openai import ChatOpenAI
-from utils.prompt_manager import get_prompt
+
+from sela.data.schemas import BaseChatModel, ExecutionMode
+from sela.utils.prompt_manager import get_prompt
 
 
 class ModeSelector:

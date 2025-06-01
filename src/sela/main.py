@@ -1,7 +1,7 @@
 import os
 
-from agents.main_agent import MainAgent
-from utils.conf import Conf
+from sela.agents.main_agent import MainAgent
+from sela.utils.conf import Conf
 
 if __name__ == "__main__":
     conf = Conf()
