@@ -1,4 +1,5 @@
 import operator
+from datetime import datetime
 from enum import Enum
 from textwrap import dedent
 from typing import Annotated, Literal, Union
@@ -29,6 +30,12 @@ class ExecutionMode(BaseModel):
 class Message(BaseModel):
     role: str = Field(..., description="発話者")
     text: str = Field(..., description="発話内容")
+    dt: datetime = Field(default_factory=lambda: datetime.now(), description="発話時刻")
+
+    def __str__(self):
+        dt_str = self.dt.strftime("%Y%m%d %H:%M:%S")
+        display_name = "SeLa" if self.role == "assistant" else "コモタ"
+        return f"{display_name}|{dt_str}:\n{self.text}\n"
 
 
 class Messages(BaseModel):
@@ -43,7 +50,7 @@ class Messages(BaseModel):
 
 
 class SeLaState(BaseModel):
-    user_message: str = Field(..., description="ユーザからのクエリ")
+    user_message: Message = Field(..., description="ユーザからの発話")
     execution_mode: Mode = Field(
         default=Mode.TALK_CASUAL,
         description="ユーザのクエリに対するエージェントの応答モード",

@@ -11,7 +11,8 @@ def main():
     agent = st.session_state.get("agent", MainAgent())
 
     for h in agent.state.messages.messages:
-        messages.chat_message(h.role).write(h.text)
+        with messages.chat_message(h.role):
+            st.text(str(h))
 
     if prompt := st.chat_input("Say something"):
         agent.run(prompt)

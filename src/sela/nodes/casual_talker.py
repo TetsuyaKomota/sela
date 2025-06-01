@@ -2,6 +2,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
 from sela.data.schemas import BaseChatModel, Message, Messages
+from sela.utils.datetime_manager import get_dt
 from sela.utils.prompt_manager import get_prompt
 
 
@@ -11,24 +12,22 @@ class CasualTalker:
         self.hisoty_len = hisoty_len
 
     def format_message_history(self, messages: list[str]) -> str:
-        output = []
-        for m in messages[-self.hisoty_len :]:
-            output.append(f"{m.role}: {m.text}")
+        output = [str(m) for m in messages[-self.hisoty_len :]]
         return "\n".join(output)
 
-    def run(self, user_message: str, messages: Messages) -> Messages:
+    def run(self, user_message: Message, messages: Messages) -> Messages:
         prompt = get_prompt("casual_talker")
 
         chain = prompt | self.llm
 
         params = {
-            "user_message": user_message,
             "message_history": self.format_message_history(messages.messages),
+            "user_message": user_message,
+            "assistant_dt": get_dt(),
         }
 
         response = chain.invoke(params)
 
-        request_message = Message(role="human", text=user_message)
         response_message = Message(role="assistant", text=response)
 
-        return Messages(messages=[request_message, response_message])
+        return Messages(messages=[user_message, response_message])
