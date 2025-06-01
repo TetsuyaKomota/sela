@@ -1,6 +1,8 @@
+import sqlite3
 from typing import Any
 
 from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, StateGraph
 
 from sela.data.schemas import BaseChatModel, Message, Mode, SeLaState
@@ -10,7 +12,10 @@ from sela.nodes.mode_selector import ModeSelector
 
 class MainAgent:
     def __init__(
-        self, llm: BaseChatModel | None = None, state: SeLaState | None = None
+        self,
+        llm: BaseChatModel | None = None,
+        state: SeLaState | None = None,
+        checkpoint_path: str = "tmp/checkpoint",
     ):
         if llm:
             self.llm = llm
@@ -25,9 +30,12 @@ class MainAgent:
         else:
             self.state = SeLaState(user_message="")
 
-        self.graph = self.create_graph()
+        # 自分しか使わないので一旦固定値
+        self.checkpoint_conf = {"configurable": {"thread_id": "thread-1"}}
 
-    def create_graph(self) -> StateGraph:
+        self.graph = self.create_graph(checkpoint_path)
+
+    def create_graph(self, checkpoint_path: str) -> StateGraph:
         workflow = StateGraph(SeLaState)
 
         workflow.add_node("select_mode", self.select_mode)
@@ -43,20 +51,24 @@ class MainAgent:
 
         workflow.add_edge("talk_casual", END)
 
-        return workflow.compile()
+        checkpointer = self.create_checkpointer(checkpoint_path)
+
+        return workflow.compile(checkpointer=checkpointer)
+
+    def create_checkpointer(self, checkpoint_path: str) -> SqliteSaver:
+        conn = sqlite3.connect(checkpoint_path, check_same_thread=False)
+        return SqliteSaver(conn)
 
     def select_mode(self, state: SeLaState) -> dict[str, Any]:
         new_mode: ExecutionMode = self.mode_selector.run(state.user_message)
         return {"mode": new_mode.mode}
 
     def talk_casual(self, state: SeLaState) -> dict[str, Any]:
-        response: list[Message] = self.casual_talker.run(
-            state.user_message, state.messages
-        )
+        response: Messages = self.casual_talker.run(state.user_message, state.messages)
         return {"messages": response}
 
     def run(self, user_message: str) -> str:
         self.state.user_message = user_message
-        result = self.graph.invoke(self.state)
+        result = self.graph.invoke(self.state, self.checkpoint_conf)
         self.state = SeLaState(**result)
         return self.state

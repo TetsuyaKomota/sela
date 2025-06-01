@@ -31,14 +31,25 @@ class Message(BaseModel):
     text: str = Field(..., description="発話内容")
 
 
+class Messages(BaseModel):
+    messages: list[Message] = Field(
+        default_factory=list, description="発話履歴のリスト"
+    )
+
+    def __add__(x1, x2):
+        # Stateには直近100の履歴のみ残す
+        # 各nodeでどこまで使うかはnode側で指定する
+        return Messages(messages=(x1.messages + x2.messages)[-100:])
+
+
 class SeLaState(BaseModel):
     user_message: str = Field(..., description="ユーザからのクエリ")
     execution_mode: Mode = Field(
         default=Mode.TALK_CASUAL,
         description="ユーザのクエリに対するエージェントの応答モード",
     )
-    messages: Annotated[list[Message], operator.add] = Field(
-        default_factory=list, description="会話履歴"
+    messages: Annotated[Messages, operator.add] = Field(
+        default_factory=Messages, description="会話履歴"
     )
 
 
