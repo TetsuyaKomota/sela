@@ -1,7 +1,7 @@
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
-from sela.data.schemas import BaseChatModel, Message
+from sela.data.schemas import BaseChatModel, Message, Messages
 from sela.utils.prompt_manager import get_prompt
 
 
@@ -16,14 +16,14 @@ class CasualTalker:
             output.append(f"{m.role}: {m.text}")
         return "\n".join(output)
 
-    def run(self, user_message: str, messages: list[str]) -> list[Message]:
+    def run(self, user_message: str, messages: Messages) -> Messages:
         prompt = get_prompt("casual_talker")
 
         chain = prompt | self.llm
 
         params = {
             "user_message": user_message,
-            "message_history": self.format_message_history(messages),
+            "message_history": self.format_message_history(messages.messages),
         }
 
         response = chain.invoke(params)
@@ -31,4 +31,4 @@ class CasualTalker:
         request_message = Message(role="human", text=user_message)
         response_message = Message(role="assistant", text=response)
 
-        return [request_message, response_message]
+        return Messages(messages=[request_message, response_message])
