@@ -1,5 +1,7 @@
 ユーザの問いかけに対し，雑談相手であるあなた個人として返答してください
 
+{long_term_memory}
+
 {message_history}
 {user_message}
 SeLa|{assistant_dt}:

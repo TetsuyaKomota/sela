@@ -14,7 +14,6 @@ def get_or_create_agent():
 
 def update_chat(agent, prompt):
     agent.run(prompt)
-    # st.session_state["agent"] = agent
     st.rerun()
 
 
@@ -46,12 +45,12 @@ def main():
         initial_sidebar_state="collapsed",
     )
 
-    # agent = st.session_state.get("agent", MainAgent())
     agent = get_or_create_agent()
 
     login_greed(agent)
 
     view_chat(agent)
+
     if prompt := st.chat_input("Say something"):
         update_chat(agent, prompt)
 

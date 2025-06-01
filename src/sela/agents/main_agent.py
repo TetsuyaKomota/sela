@@ -9,6 +9,7 @@ from langgraph.graph import END, StateGraph
 from sela.data.schemas import BaseChatModel, Message, Mode, SeLaState
 from sela.nodes.casual_talker import CasualTalker
 from sela.nodes.mode_selector import ModeSelector
+from sela.rags.long_term_memory import LongTermMemory
 from sela.utils.datetime_manager import get_dt
 
 
@@ -27,8 +28,10 @@ class MainAgent:
             temperature=ConfigurableField(id="temperature")
         )
 
-        self.mode_selector = ModeSelector(self.llm)
-        self.casual_talker = CasualTalker(self.llm)
+        self.long_term_memory = LongTermMemory.get_retriever()
+
+        self.mode_selector = ModeSelector(self.llm, self.long_term_memory)
+        self.casual_talker = CasualTalker(self.llm, self.long_term_memory)
 
         if state:
             self.state = state
