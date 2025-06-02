@@ -78,7 +78,7 @@ class MainAgent:
 
     def run(self, user_message: str) -> str:
         new_message = Message(text=user_message, role="human")
-        self.state.user_message = new_message
+        self.state = SeLaState(user_message=new_message)
         result = self.graph.invoke(self.state, self.checkpoint_conf)
         self.state = SeLaState(**result)
         return self.state

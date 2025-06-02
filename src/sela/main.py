@@ -8,7 +8,8 @@ if __name__ == "__main__":
     agent = MainAgent()
 
     response = agent.run("こんにちは")
-
     print(response.messages.messages[-1].text)
-    print(agent.state)
-    print(agent.state.messages)
+    response = agent.run("調子はどうですか？")
+    print(response.messages.messages[-1].text)
+    response = agent.run("さようなら")
+    print(response.messages.messages[-1].text)
