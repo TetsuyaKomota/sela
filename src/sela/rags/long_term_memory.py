@@ -8,6 +8,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_openai import OpenAIEmbeddings
 
+from sela.data.schemas import ImportantFactor
 from sela.utils.datetime_manager import get_dt
 
 
@@ -31,12 +32,20 @@ class LongTermMemory:
                 f"""
                 必要に応じて，以下の情報を活用してください．
                 ただし，回答のために有益でない場合は必ずしも参照する必要はありません
+                ---
                 {contents}
+                ---
             """
             ).strip()
             return output
 
         return _f
+
+    @staticmethod
+    def save_important_factor_to_memory(
+        important_factor: ImportantFactor, dir_path: str = "tmp/long_term_memory"
+    ):
+        LongTermMemory.add(important_factor.factor, dir_path)
 
     @staticmethod
     def _create_initial_knowledge(dir_path: str):

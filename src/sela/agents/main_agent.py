@@ -8,6 +8,7 @@ from langgraph.graph import END, StateGraph
 
 from sela.data.schemas import BaseChatModel, Message, Mode, SeLaState
 from sela.nodes.casual_talker import CasualTalker
+from sela.nodes.memory_saver import MemorySaver
 from sela.nodes.mode_selector import ModeSelector
 from sela.rags.long_term_memory import LongTermMemory
 from sela.utils.datetime_manager import get_dt
@@ -32,6 +33,11 @@ class MainAgent:
 
         self.mode_selector = ModeSelector(self.llm, self.long_term_memory)
         self.casual_talker = CasualTalker(self.llm, self.long_term_memory)
+        self.memory_saver = MemorySaver(
+            self.llm,
+            self.long_term_memory,
+            LongTermMemory.save_important_factor_to_memory,
+        )
 
         if state:
             self.state = state
@@ -49,6 +55,7 @@ class MainAgent:
 
         workflow.add_node("select_mode", self.select_mode)
         workflow.add_node("talk_casual", self.talk_casual)
+        workflow.add_node("save_memory", self.save_memory)
 
         workflow.set_entry_point("select_mode")
 
@@ -58,7 +65,9 @@ class MainAgent:
             {Mode.TALK_CASUAL: "talk_casual", Mode.DEBUG: END},
         )
 
-        workflow.add_edge("talk_casual", END)
+        workflow.add_edge("talk_casual", "save_memory")
+
+        workflow.add_edge("save_memory", END)
 
         checkpointer = self.create_checkpointer(checkpoint_path)
 
@@ -75,6 +84,10 @@ class MainAgent:
     def talk_casual(self, state: SeLaState) -> dict[str, Any]:
         response: Messages = self.casual_talker.run(state.user_message, state.messages)
         return {"messages": response}
+
+    def save_memory(self, state: SeLaState) -> dict[str, Any]:
+        important_factor: ImportantFactor = self.memory_saver.run(state.messages)
+        return {"important_factor": important_factor}
 
     def run(self, user_message: str) -> str:
         new_message = Message(text=user_message, role="human")

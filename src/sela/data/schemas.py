@@ -49,6 +49,10 @@ class Messages(BaseModel):
         return Messages(messages=(x1.messages + x2.messages)[-100:])
 
 
+class ImportantFactor(BaseModel):
+    factor: str = Field(..., description="注目すべき重要な要素")
+
+
 class SeLaState(BaseModel):
     user_message: Message = Field(..., description="ユーザからの発話")
     execution_mode: Mode = Field(
@@ -57,6 +61,9 @@ class SeLaState(BaseModel):
     )
     messages: Annotated[Messages, operator.add] = Field(
         default_factory=Messages, description="会話履歴"
+    )
+    important_factor: ImportantFactor = Field(
+        default=ImportantFactor(factor=""), description="長期記憶に残すべき重要な要素"
     )
 
 
