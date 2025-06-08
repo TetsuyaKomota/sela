@@ -19,8 +19,8 @@ class CasualTalker:
         self.long_term_memory = long_term_memory
         self.hisoty_len = hisoty_len
 
-    def format_message_history(self, messages: list[str]) -> str:
-        output = [str(m) for m in messages[-self.hisoty_len :]]
+    def format_message_history(self, messages: Messages) -> str:
+        output = [str(m) for m in messages.messages[-self.hisoty_len :]]
         return "\n".join(output)
 
     def run(self, user_message: Message, messages: Messages) -> Messages:
@@ -30,7 +30,7 @@ class CasualTalker:
 
         params = {
             "long_term_memory": self.long_term_memory(user_message.text),
-            "message_history": self.format_message_history(messages.messages),
+            "message_history": self.format_message_history(messages),
             "user_message": user_message,
             "assistant_dt": get_dt(),
         }

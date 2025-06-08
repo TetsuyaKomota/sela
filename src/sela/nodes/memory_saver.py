@@ -17,14 +17,14 @@ class MemorySaver:
         self.save_important_factor_to_memory = save_important_factor_to_memory
         self.hisoty_len = hisoty_len
 
-    def format_message_history(self, messages: list[str]) -> str:
-        output = [str(m) for m in messages[-self.hisoty_len :]]
+    def format_message_history(self, messages: Messages) -> str:
+        output = [str(m) for m in messages.messages[-self.hisoty_len :]]
         return "\n".join(output)
 
     def run(self, messages: Messages) -> ImportantFactor:
         prompt = get_prompt("memory_saver")
 
-        message_history = self.format_message_history(messages.messages)
+        message_history = self.format_message_history(messages)
         long_term_memory = self.long_term_memory(message_history)
         long_term_memory = long_term_memory.split("---")[
             1
