@@ -10,3 +10,21 @@
     - LANGCHAIN_TRACING_V2: "true"
     - LANGCHAIN_ENDPOINT: https://api.smith.langchain.com
     - LANGCHAIN_PROJECT: sela
+
+- tmp/aider.env に，Aiderの公式の設定ファイルをコピペしてください
+    - https://github.com/Aider-AI/aider/blob/837b8a93e9561a274b09482d7d2a337ad0aa69b2/scripts/logo_svg.py
+    - AIDER_OPENAI_API_KEY の設定だけ入れれば動きます
+
+## 実行方法
+
+### WebUI の起動
+- Streamlit で起動します
+```
+streamlit run src/webui/main.py
+```
+
+### Aider の起動
+- winpty経由で起動します
+```
+./aider_chat.sh
+```

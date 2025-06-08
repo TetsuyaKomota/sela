@@ -3,7 +3,7 @@ from os.path import abspath, dirname, join
 from langchain_core.prompts import ChatPromptTemplate
 
 
-def get_prompt(prompt_name: str) -> list[tuple[str, str]]:
+def get_prompt(prompt_name: str) -> ChatPromptTemplate:
     dir_path = dirname(abspath(__file__))
     base_path = join(dirname(dir_path), "prompts")
 
