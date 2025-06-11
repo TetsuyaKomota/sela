@@ -10,7 +10,7 @@ class MemorySaver:
         llm: BaseChatModel,
         long_term_memory: Callable[[str], str],
         save_important_factor_to_memory: Callable[[ImportantFactor], None],
-        hisoty_len: int = 10,
+        hisoty_len: int = 2,  # 直近の応答のみを参照
     ):
         self.llm = llm.with_structured_output(ImportantFactor)
         self.long_term_memory = long_term_memory

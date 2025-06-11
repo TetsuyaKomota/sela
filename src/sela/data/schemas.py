@@ -26,6 +26,9 @@ class ExecutionMode(BaseModel):
         ).strip(),
     )
 
+    def __str__(self):
+        return f"{self.mode}"
+
 
 class Message(BaseModel):
     role: str = Field(..., description="発話者")

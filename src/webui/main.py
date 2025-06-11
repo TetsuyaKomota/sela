@@ -34,9 +34,27 @@ def login_greed(agent):
 def view_chat(agent):
     messages = st.container()
 
-    for h in agent.state.messages.messages:
+    for h in agent.state.messages.messages[-10:]:
         with messages.chat_message(h.role):
             st.text(str(h))
+
+
+def view_ui(agent):
+    if prompt := st.chat_input("Say something"):
+        update_chat(agent, prompt)
+
+
+def view_state(agent):
+    state = agent.state
+    with st.expander("SeLaState を確認"):
+        st.markdown("### execution_mode")
+        st.markdown(state.execution_mode)
+
+        st.markdown("### user_message")
+        st.markdown(state.user_message)
+
+        st.markdown("### important_factor")
+        st.markdown(state.important_factor)
 
 
 def main():
@@ -45,15 +63,15 @@ def main():
         layout="wide",
         initial_sidebar_state="collapsed",
     )
-
     agent = get_or_create_agent()
 
     login_greed(agent)
 
     view_chat(agent)
 
-    if prompt := st.chat_input("Say something"):
-        update_chat(agent, prompt)
+    view_ui(agent)
+
+    view_state(agent)
 
 
 if __name__ == "__main__":
